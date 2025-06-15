@@ -1,0 +1,2 @@
+django~=4.2.22
+djangorestframework~=3.16.0
