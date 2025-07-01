@@ -16,13 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from apps.main.views import home_view
-
 
 urlpatterns = [
-    # path('', RedirectView.as_view(url='/admin/', permanent=False)),
     path('admin/', admin.site.urls),
-    # Incluye las URLs de tu app 'main'
-    path('', include('apps.main.urls')),
-
+    # Prefijo para todas las URLs de la API de la app 'main'
+    path('api/main/', include('apps.main.urls')),
+    # Aquí puedes agregar otras rutas de otras apps si es necesario
 ]

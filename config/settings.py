@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     # Aplicaciones locales
     'apps.users',
     'apps.attendance',
+    'apps.main',
 ]
 
 MIDDLEWARE = [
@@ -135,9 +136,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-# 3. Define qué orígenes (URLs) pueden hacer peticiones a tu backend.
-# Para desarrollo, permitiremos el servidor de React.
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+# Orígenes (URLs) que pueden hacer peticiones al backend.
+# Para desarrollo, lo dejamos abierto, pero en la implementación se especifica puerto.
+CORS_ALLOW_ALL_ORIGINS = True
