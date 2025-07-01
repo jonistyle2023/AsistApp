@@ -1,6 +1,6 @@
 # AsistApp
 
->[!info]
+>[!important]
 >
 > **Authors:**
 >- **Designed** and **created by** _Ivan Panchana Rodriguez._ (@CosmosSpace-x)
