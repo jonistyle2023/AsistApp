@@ -146,10 +146,10 @@ REGISTRAR UN DOCENTE:
 - URL: `http://127.0.0.1:8000/api/auth/register/`
 ```json
 {
-    "username": "jdpanchana1",
-    "email": "jdpanchana1@utpl.edu.ec",
-    "password": "David123.",
-    "password2": "David123."
+    "username": "jdpanchana1",
+    "email": "jdpanchana1@utpl.edu.ec",
+    "password": "David123.",
+    "password2": "David123."
 }
 ```
 - RESPUESTA ESPERADA: `201 Created`
