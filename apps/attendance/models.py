@@ -1,11 +1,11 @@
 # Create your models here.
 # attendance/models.py
 from django.db import models
-from apps.users.models import CustomUser
+from apps.users.models import User
 
 class ClassSession(models.Model):
     subject = models.CharField(max_length=100)
-    teacher = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE)
     qr_token = models.CharField(max_length=256)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -13,7 +13,7 @@ class ClassSession(models.Model):
     location_lng = models.FloatField()
 
 class AttendanceRecord(models.Model):
-    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
     session = models.ForeignKey(ClassSession, on_delete=models.CASCADE)
     scan_time = models.DateTimeField(auto_now_add=True)
     device_id = models.CharField(max_length=255)

@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import axios from 'axios';
+import api from '../api/axiosConfig';
 import {FiPlus, FiBookOpen, FiClipboard, FiGrid} from 'react-icons/fi';
 import Modal from '../components/Modal';
 import SectionCard from '../components/SectionCard';
@@ -19,62 +19,56 @@ const QrGeneratorPage = () => {
     const [formError, setFormError] = useState('');
 
     useEffect(() => {
-        const controller = new AbortController();
         const fetchData = async () => {
             setLoading(true);
             setError(null);
             try {
+                // CAMBIO: Usamos 'api' para las peticiones
                 const [coursesRes, classesRes] = await Promise.all([
-                    axios.get('http://127.0.0.1:8000/api/main/cursos/', {signal: controller.signal}),
-                    axios.get('http://127.0.0.1:8000/api/main/clases/', {signal: controller.signal})
+                    api.get('/main/cursos/'),
+                    api.get('/main/clases/')
                 ]);
+
                 const coursesData = coursesRes.data.results || coursesRes.data;
                 const classesData = classesRes.data.results || classesRes.data;
+
                 setCourses(coursesData);
                 setClasses(classesData);
+
                 if (coursesData && coursesData.length > 0) {
                     setSelectedCourseId(coursesData[0].id);
                 }
             } catch (err) {
-                if (!axios.isCancel(err)) {
-                    setError('No se pudieron cargar los datos. Revisa la consola para más detalles.');
-                    console.error("Error al procesar los datos:", err);
-                }
+                setError('No se pudieron cargar los datos. ¿Has iniciado sesión?');
+                console.error("Error al procesar los datos:", err);
             }
             setLoading(false);
         };
         fetchData();
-        return () => controller.abort();
     }, []);
 
     const handleAddCourse = async (e) => {
         e.preventDefault();
         setFormError('');
-        if (!newCourseName.trim()) {
-            setFormError('El nombre del curso no puede estar vacío.');
-            return;
-        }
+        if (!newCourseName.trim()) return;
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/main/cursos/', {nombre: newCourseName});
+            const response = await api.post('/main/cursos/', {nombre: newCourseName});
             const newCourses = [...courses, response.data];
             setCourses(newCourses);
             if (newCourses.length === 1) setSelectedCourseId(newCourses[0].id);
             setNewCourseName('');
             setCourseModalOpen(false);
         } catch (err) {
-            setFormError('Error al crear el curso. ¿Quizás el nombre ya existe?');
+            setFormError('Error al crear el curso.');
         }
     };
 
     const handleAddClass = async (e) => {
         e.preventDefault();
         setFormError('');
-        if (!newClassName.trim() || !selectedCourseId) {
-            setFormError('Debes seleccionar un curso y darle un nombre a la clase.');
-            return;
-        }
+        if (!newClassName.trim() || !selectedCourseId) return;
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/main/clases/', {
+            const response = await api.post('/main/clases/', {
                 nombre: newClassName,
                 horario: newClassHorario,
                 curso: selectedCourseId

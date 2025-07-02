@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from apps import users
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -26,7 +26,6 @@ SECRET_KEY = 'django-insecure-9o090c3qz&*f@dt5jk08*&r10mr5#db@+-(&&q9gu8skmx*kvh
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -41,7 +40,9 @@ INSTALLED_APPS = [
 
     # Dependencias de terceros
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
+    'axes',
 
     # Aplicaciones locales
     'apps.users',
@@ -49,6 +50,62 @@ INSTALLED_APPS = [
     'apps.main',
 ]
 
+# Modelo de usuario personalizado
+AUTH_USER_MODEL = 'users.User'
+
+# Configuración de Django REST Framework y Simple JWT
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # Usamos JWT para la autenticación de la API
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    # Duración del token de acceso (la "sesión" corta)
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    # Duración del token de refresco (permite renovar la sesión)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,  # Por seguridad, cada vez que se usa un refresh token, se emite uno nuevo
+}
+
+# Configuración de Políticas de Contraseña
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,  # Longitud mínima de 8 caracteres
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    # Puedes añadir validadores personalizados para requerir mayúsculas/símbolos
+]
+
+# Configuración de Django-Axes (Bloqueo de Cuentas)
+AXES_FAILURE_LIMIT = 5  # Bloquear después de 5 intentos fallidos
+AXES_COOLOFF_TIME = timedelta(minutes=15)  # Duración del bloqueo: 15 minutos
+# AXES_HANDLER = 'axes.handlers.proxy.AxesProxyHandler'
+# Le decimos a Axes que use el email (o username) para rastrear intentos
+AXES_LOGIN_CALLABLE = 'apps.users.utils.get_user_from_request'
+
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Middleware: AxesMiddleware es clave
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -56,6 +113,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Axes Middleware debe ir después de AuthenticationMiddleware
+    'axes.middleware.AxesMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -80,7 +139,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -90,26 +148,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -122,7 +160,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -133,8 +170,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-AUTH_USER_MODEL = 'users.CustomUser'
 
 # Orígenes (URLs) que pueden hacer peticiones al backend.
 # Para desarrollo, lo dejamos abierto, pero en la implementación se especifica puerto.

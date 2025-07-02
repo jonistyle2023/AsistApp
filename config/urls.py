@@ -19,7 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # Prefijo para todas las URLs de la API de la app 'main'
     path('api/main/', include('apps.main.urls')),
-    # Aquí puedes agregar otras rutas de otras apps si es necesario
+    path('api/auth/', include('apps.users.urls')),
 ]
