@@ -97,3 +97,104 @@ asistApp/
 - **SQLite:** Es el motor de base de datos que estamos utilizando durante el desarrollo. Es un archivo simple (db.sqlite3) donde Django almacena toda la información persistente de la aplicación (cursos, clases, usuarios, etc.) de una manera ligera y fácil de gestionar.
 - **Postman:** Fue nuestra herramienta de diagnóstico y pruebas. La usamos para interactuar directamente con la API de Django antes de construir el frontend, asegurándonos de que los endpoints funcionaran correctamente y devolvieran los datos esperados.
 - **PyCharm:** Es el Entorno de Desarrollo Integrado (IDE) que estás utilizando para escribir, gestionar y ejecutar tanto el código del backend (Python/Django) como el del frontend (JavaScript/React).
+
+---
+
+## **Routes (Para pruebas)**
+
+### `main` **(Pruebas)**
+
+CREAR UN CURSO
+- Método: POST
+- URL: `http://127.0.0.1:8000/api/main/cursos/`
+```json
+{
+    "nombre": "Petróleos 3/1",
+    "lista_info": "Lista de estudiantes de petróleos."
+}
+```
+Deberías recibir una respuesta `201 Created` con los datos del curso creado, incluyendo su `id`. **Copia este `id`**.
+
+OBTENER LA LISTA DE CURSOS
+- Método: `GET`
+- URL: `http://127.0.0.1:8000/api/main/cursos/`
+- Haz clic en **Send**. Verás una lista con todos los cursos que has creado.
+
+CREAR UNA CLASE PARA ESE CURSO
+- **Método:** `POST`
+- **URL:** `http://127.0.0.1:8000/api/main/clases/`
+- **Body > raw > JSON:** (Usa el `id` del curso)
+```json
+{ 
+	"nombre": "Introducción a la Perforación", 
+	"horario": "Martes y Jueves 8:00 - 10:00", 
+	"curso": "AQUÍ_PEGA_EL_ID_DEL_CURSO_CREADO" 
+}
+```
+- Haz clic en **Send**. Recibirás una respuesta `201 Created`.
+
+VER UN CURSO CON SUS CLASES ANIDADAS
+- **Método:** `GET`
+- **URL:** `http://127.0.0.1:8000/api/main/cursos/AQUÍ_PEGA_EL_ID_DEL_CURSO/`
+- **Send**. verás los detalles del curso y, dentro de un array llamado `clases`, verás la clase que acabas de crear.
+
+---
+### `Users` **(Pruebas)**
+
+REGISTRAR UN DOCENTE:
+- Método: `POST`
+- URL: `http://127.0.0.1:8000/api/auth/register/`
+```json
+{
+    "username": "jdpanchana1",
+    "email": "jdpanchana1@utpl.edu.ec",
+    "password": "David123.",
+    "password2": "David123."
+}
+```
+- RESPUESTA ESPERADA: `201 Created`
+
+PROBAR BLOQUEO DE CUENTA (django-axes):
+- Método: `POST`
+- URL: `http://127.0.0.1:8000/api/auth/login/`
+```json
+{
+    "email": "jdpanchana1@utpl.edu.ec",
+    "password": "unapasswordincorrecta"
+}
+```
+- OBSERVACIÓN: Envía esta petición 5 veces. Recibirás un error `401 Unauthorized`. A la sexta vez, deberías recibir un error `403 Forbidden` con un mensaje indicando que la cuenta está bloqueada.
+
+INICIAR SESIÓN CORRECTAMENTE:
+- MÉTODO: `POST`
+- URL: `http://127.0.0.1:8000/api/auth/login/`
+```json
+{
+    "email": "jdpanchana1@utpl.edu.ec",
+    "password": "David123."
+}
+```
+- RESPUESTA ESPERADA: Recibirás una respuesta `200 OK` con un `access` token y un `refresh` token. **Copia el `access` token.**
+
+ACCEDER A UN RECURSO PROTEGIDO:
+- **Método:** `GET`
+- URL: `http://127.0.0.1:8000/api/auth/profile/`
+- Headers:
+    - Key: `Authorization`
+    - Value: `Bearer TU_ACCESS_TOKEN_COPIADO_AQUÍ`
+- Recibirás los datos del perfil del usuario autenticado.
+
+---
+
+## Creación Django Project
+
+Para crear aplicación en Django
+```python
+python manage.py startapp planificacion
+```
+
+MIGRACIONES, CADA VEZ QUE HAGA CAMBIOS
+Para probar conexión (Cada que surgen cambios):
+```python
+python manage.py makemigrations
+python manage.py migrate
