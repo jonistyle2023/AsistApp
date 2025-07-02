@@ -49,7 +49,7 @@ const LandingPage = () => {
                     ¿No tienes una cuenta? Regístrate
                 </button>
             </main>
-            <footer className="w-full p-4 text-center text-gray-500 text-sm"> <p>2025 AssistApp. Designed & Developed by Cosmos_Space-x Industries</p> </footer>
+            <footer className="w-full p-4 text-center text-gray-500 text-sm"> <p>2025 <b>©AssistApp</b>. Designed & Developed by <b>Cosmos_Space-x Industries</b></p> </footer>
             <Modal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)}> <LoginForm /> </Modal>
             <Modal isOpen={isRegisterModalOpen} onClose={() => setRegisterModalOpen(false)}> <RegisterForm onSuccess={handleRegisterSuccess} /> </Modal>
         </div>
